@@ -157,18 +157,4 @@ aws logs tail /aws/lambda/EmergingTechnologyResearchAgent --follow
 - **CloudWatch**: 5GB free logs/month
 - **OpenAI**: ~$0.01 per research request (varies)
 
-## 🤝 Contributing
 
-Pull requests are welcome. For major changes, please open an issue first.
-
-## 📄 License
-
-MIT License
-
-## 👤 Author
-
-[Your Name]
-
-## 📞 Support
-
-For issues or questions, please open a GitHub issue.
