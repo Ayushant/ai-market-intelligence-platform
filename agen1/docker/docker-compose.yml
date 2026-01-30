@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  agent-local:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "9000:8080"
+    environment:
+      - AWS_REGION=us-east-1
+      - SECRET_NAME=${SECRET_NAME}
+      - SECRET_REGION=${SECRET_REGION}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL_NAME=${OPENAI_MODEL_NAME}
+      - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
+      - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
+      - LANGFUSE_HOST=${LANGFUSE_HOST}
+    volumes:
+      - ..:/app
+    networks:
+      - agent-network
+
+  # LocalStack for local AWS service emulation (optional)
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=secretsmanager,cloudwatch,logs
+      - DEBUG=0
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${TMPDIR}:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - agent-network
+
+networks:
+  agent-network:
+    driver: bridge

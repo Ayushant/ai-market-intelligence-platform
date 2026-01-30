@@ -1,0 +1,24 @@
+# Core CrewAI Dependencies
+crewai[tools]==1.6.1
+crewai-tools==0.1.7
+
+# AWS Services
+boto3>=1.40.35
+
+# LLM & Observability
+langfuse>=3.5.0
+openinference-instrumentation-crewai>=0.1.13
+openai>=1.3.0
+
+# UI & Output
+rich>=14.2.0
+termcolor>=3.2.0
+
+# Utilities
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+pydantic-core>=2.0.0
+httpx>=0.24.0
+
+# AgentCore Compatible (Optional but recommended)
+aws-lambda-powertools>=2.0.0

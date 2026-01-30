@@ -1,74 +1,174 @@
-# 🤖 Section 03. Hello Agentic
+# AI Market Intelligence Platform
 
-## 🎯 Purpose
-This sections focuses on Introduction to Agentic Frameworks and CrewAI in particular. Demos in the course included building basic agentic application using CrewAI. We explored usage of crews, agents and tasks. We demoed using Langfuse to observe internal functioning and performance of agentic applications. This repo contains the code used for the demos.
+An enterprise-grade agentic application for researching emerging technologies, powered by CrewAI and deployed on AWS AgentCore.
 
-## 🛠️ Installation
-This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
+## 🚀 Quick Start
 
-First, if you haven't already, install uv:
+### Prerequisites
+- Python 3.10+
+- AWS Account (for cloud deployment)
+- API Keys: OpenAI, Langfuse
+
+### Local Setup
+
 ```bash
-pip install uv
+# Clone the repository
+git clone https://github.com/Ayushant/ai-market-intelligence-platform.git
+cd ai-market-intelligence-platform
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your API keys
+
+# Test locally
+python test_handler.py
+
+# Run CLI mode
+python -m researcheragen1.run
 ```
 
-Next, navigate to your project directory and install the dependencies:
+### Docker Setup (Local Testing)
+
 ```bash
-uv sync
+# Build and run
+docker-compose up
+
+# Test the agent
+curl -X POST http://localhost:9000/2015-03-31/functions/function/invocations \
+  -d '{"topic": "Quantum Computing"}'
 ```
 
-## ✅ Pre-requisites
-___Instead of automating the pre-requisites, most of the steps are kept as manual. This has been intentionally done so that the learner can grasp the concepts in more detail.___
+## 📁 Project Structure
 
-### 🆕 AWS CLI Setup
-___This is a new pre-requisite introduced in this section___. You may follow below steps to setup AWS CLI:
-1. Install AWS CLI using [User Guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
-2. Configure AWS CLI using the below command on the terminal. Try to keep region as `us-east-1` as it generally gets the latest updates.
+```
+.
+├── agentcore_handler.py          # AWS Lambda handler
+├── requirements.txt              # Python dependencies
+├── agent.yaml                    # AgentCore configuration
+├── .env.example                  # Environment template
+├── .gitignore                    # Git protection rules
+├── test_handler.py              # Local testing script
+├── pyproject.toml               # Project metadata
+├── docker/
+│   ├── Dockerfile               # Container image
+│   └── docker-compose.yml       # Local test setup
+└── researcheragen1/             # Agent implementation
+    ├── run.py                   # CLI entry point
+    ├── crews/
+    │   └── researchCrew.py      # CrewAI agent definition
+    ├── config/
+    │   ├── researchAgents.yaml  # Agent configurations
+    │   └── researchTasks.yaml   # Task definitions
+    └── utils/
+        ├── env.py               # AWS Secrets integration
+        └── llmUtils.py          # LLM configuration
+```
+
+## 🧠 How It Works
+
+The platform orchestrates multiple AI agents to research emerging technologies:
+
+1. **Researcher Agent** - Gathers cutting-edge information from the latest developments
+2. **Reporting Agent** - Synthesizes findings into comprehensive, structured reports
+
+### Architecture
+
+```
+User Request (Topic)
+        ↓
+AWS Lambda (agentcore_handler.py)
+        ↓
+CrewAI Crew (Sequential Execution)
+├─ Researcher Agent → GPT-4
+└─ Reporting Agent → GPT-4
+        ↓
+AWS Secrets Manager (Secure Credentials)
+AWS CloudWatch (Logging)
+Langfuse (LLM Observability)
+        ↓
+JSON Research Report
+```
+
+## 🚀 Deployment
+
+### Local Testing
 ```bash
-aws configure 
-```
-Note: The AWS key or user used in `aws configure` command should have read and write permissions for AWS Bedrock, AgentCore Runtime, AgentCore Memory, AgentCore MCP, AWS Cognito, and AWS Secrets Manager.
-
-### 🆕 Env file setup
-___This is a new pre-requisite introduced in this section___. You may copy `.env.template` as `.env` and populate it as mentioned in the subsequent steps.
-
-### 🆕 AWS Secrets Manager Setup (Optional)
-We are talking about production grade agentic AI. Which means we shouldn't have secrets sprinkled in the local environment file or code. To ensure this security best practice, ideally you should create a secret in AWS secrets manager of type `Other type of secret`. You can populate secrets like `OpenAI key`, `Langfuse private key` in this container secret as key value pair. Key is the secret name, and value is the secret value. You needn't populate secrets in it as of now. AWS might stop you from saving the secret without any key value. You may save a dummy key value just to proceed.
-
-After that set below variables in the `.env` file present in the current folder:
-```python
-SECRET_NAME=<Name of the secret as created in the AWS Secrets Manager>
-SECRET_REGION=<AWS region where this secret is created, e.g. us-east-1>
-```
-The code is already in place to load the secrets from this container into environment file. Please note that secrets stored in AWS secrets manager costs. If you wouldn't like to incur that cost, you may set secrets in the local `.env` file. In that case, for security reasons, you should only try out the agentic application on local machine only.
-
-### 🆕 OpenAI Setup (Only if using OpenAI models)
-:memo: This repo by default uses Amazon's Nova Pro model. But in my personal experience, OpenAI's gpt models perform better. You may consider setting up OpenAI for this repo if your budget allows.
-
-___This is a new pre-requisite introduced in this section___. If you would like to use OpenAI models, you may follow below steps.
-1. Generate OpenAI key if you would like to use OpenAI models. This can be done on [OpenAI Platform](https://platform.openai.com/). Please note that using OpenAI models would require minimum payment of $5 to OpenAI.
-2. Set below key in the AWS secret containing secrets. This would be automatically loaded in the environment variables of the application. If you are not using AWS secret and just trying on you local, you may set this in `.env` file. 
-```python
-OPENAI_API_KEY=<Key as generated by OpenAI>
+python test_handler.py
 ```
 
-### 🆕 Langfuse Setup (For observability)
-___This is a new pre-requisite introduced in this section___. You may setup Langfuse for observability using the below steps:
-1. Generate Langfuse keys on Langfuse.
-2. Set below keys in the AWS secret containing secrets. This would be automatically loaded in the environment variables of the application. If you are not using AWS secret and just trying on local, you may set these in `.env` file. 
-```
-LANGFUSE_PUBLIC_KEY=<Public key as generated by Langfuse>
-LANGFUSE_SECRET_KEY=<Secret key as generated by Langfuse>
-LANGFUSE_BASE_URL=<Host as specified by Langfuse while generating the keys>
-```
+### AWS AgentCore Deployment
 
-## 🚀 Running the Project
-:memo: It is a good idea to observe every execution trace in Langfuse. If LLM call isn't visible in the trace, try seeing the output of the agents in agent spans. It should have response returned from LLMs. 
-
-To see the CrewAI application in action, you may use below steps:
-1. Run the CLI interface using the below command:
+1. **Create AWS Secrets Manager Secret**
 ```bash
-uv run python -m src.emergingtechnologyresearch.run
+aws secretsmanager create-secret \
+  --name emerging-tech-research-secrets \
+  --secret-string '{"OPENAI_API_KEY":"sk-...", "LANGFUSE_SECRET_KEY":"..."}'
 ```
-2. When asked by CLI, you may try out a topic for which you would like to research, e.g. Quantum Computing, Agentic AI, etc. Post the execution you may explore the execution trace in Langfuse. This is quite important to understand internals of the agentic application.
 
-**Happy Learning! 🎉🤖**
+2. **Deploy via AgentCore Console**
+   - Go to: https://console.aws.amazon.com/agentcore/
+   - Upload `agent.yaml`
+   - Configure environment variables
+   - Deploy
+
+3. **Invoke in Cloud**
+```bash
+aws lambda invoke \
+  --function-name EmergingTechnologyResearchAgent \
+  --payload '{"topic":"AI in Healthcare"}' \
+  response.json
+```
+
+## 📊 Monitoring
+
+### CloudWatch Logs
+```bash
+aws logs tail /aws/lambda/EmergingTechnologyResearchAgent --follow
+```
+
+### Langfuse Dashboard
+- URL: https://cloud.langfuse.com
+- View: LLM traces, token usage, costs
+
+## 📚 Technology Stack
+
+- **Framework**: CrewAI (Agent Orchestration)
+- **LLM**: OpenAI GPT-4
+- **Cloud**: AWS Lambda, Secrets Manager, CloudWatch
+- **Observability**: Langfuse
+- **Container**: Docker
+- **Language**: Python 3.11+
+
+## 🔒 Security
+
+- ✅ No hardcoded API keys
+- ✅ AWS Secrets Manager integration
+- ✅ Environment-based configuration
+- ✅ IAM role-based access
+- ✅ Encrypted credentials
+
+## 💰 Cost Optimization
+
+- **Lambda**: Free tier covers 1M invocations/month
+- **Secrets Manager**: Free tier included
+- **CloudWatch**: 5GB free logs/month
+- **OpenAI**: ~$0.01 per research request (varies)
+
+## 🤝 Contributing
+
+Pull requests are welcome. For major changes, please open an issue first.
+
+## 📄 License
+
+MIT License
+
+## 👤 Author
+
+[Your Name]
+
+## 📞 Support
+
+For issues or questions, please open a GitHub issue.

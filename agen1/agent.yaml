@@ -1,0 +1,69 @@
+# AWS AgentCore Agent Configuration
+# This configuration defines your agent for AgentCore deployment
+
+name: EmergingTechnologyResearchAgent
+description: AI-powered agent for researching emerging technologies and generating comprehensive reports
+version: "1.0.0"
+
+# Agent handler configuration
+handler:
+  module: agentcore_handler
+  function: handler
+  runtime: python3.11
+
+# Agent capabilities
+capabilities:
+  - research
+  - report-generation
+  - data-synthesis
+
+# Input schema - what AgentCore expects
+inputSchema:
+  type: object
+  required:
+    - topic
+  properties:
+    topic:
+      type: string
+      description: The technology or topic to research
+      example: "Quantum Computing"
+    current_year:
+      type: string
+      description: Current year for context
+      default: "2025"
+
+# Output schema - what the agent returns
+outputSchema:
+  type: object
+  properties:
+    success:
+      type: boolean
+      description: Whether the research was successful
+    topic:
+      type: string
+      description: The researched topic
+    report:
+      type: object
+      description: The generated research report
+    timestamp:
+      type: string
+      description: When the research was completed
+
+# Agent configuration
+config:
+  timeout: 900  # 15 minutes
+  memory: 3008  # MB
+  environment:
+    - SECRET_NAME
+    - SECRET_REGION
+    - OPENAI_API_KEY
+    - OPENAI_MODEL_NAME
+    - LANGFUSE_SECRET_KEY
+    - LANGFUSE_PUBLIC_KEY
+    - LANGFUSE_HOST
+
+# Deployment settings
+deployment:
+  vpc:
+    enabled: false  # Set to true if using VPC resources
+  environment: production
